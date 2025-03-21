@@ -1,0 +1,42 @@
+<!-- lwc ChatGPT component imitates a chat window,
+written by Naveen Yampati naveenyampati@gmail.com -->
+
+<template>
+    <article class = 'slds-card'>
+       <div lwc:if={showChat}>
+           <section role="log" class="slds-chat">
+               
+                   <ul class="slds-chat-list">
+                       <template for:each={responses} for:item="response">
+                            <li class={response.liAtt} key={response.id}>
+                            <div class="slds-chat-message">
+                                <template if:true={response.showAvtar}>
+                                    <span aria-hidden="true" class="slds-avatar slds-avatar_circle slds-chat-avatar">
+                                        <abbr class="slds-avatar__initials slds-avatar__initials_inverse" title="ChatGPT">{response.initials}</abbr>
+                                    </span>
+                                </template>
+                                <div class="slds-chat-message__body">
+                                <div class={response.divAtt}>
+                                    <span>{response.response}</span>
+                                </div>
+                                </div>
+                            </div>
+                            </li>
+                        </template>
+                    </ul>
+                
+            </section>
+       </div>
+        <footer>
+             <lightning-input type="text" variant="standard" name="questionBox" label="get smart answers, ask questions.." placeholder="type here..."
+                onchange = {handleInputOnChange} value = {chatInputValue}
+            >
+            </lightning-input>
+
+            <lightning-button-icon variant="base" size="small" icon-name="utility:chat" alternative-text="ask now"
+                onclick={handleChatClick} 
+            >
+            </lightning-button-icon>
+        </footer>
+    </article>
+</template>

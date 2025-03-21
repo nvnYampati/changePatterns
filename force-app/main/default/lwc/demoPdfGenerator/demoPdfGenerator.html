@@ -1,0 +1,18 @@
+<template>
+    <lightning-card title="Text to PDF">
+        <div class="slds-m-around_medium">
+            <lightning-textarea 
+                label="Enter Text" 
+                value={textValue} 
+                onchange={handleTextChange}>
+            </lightning-textarea>
+            <lightning-button 
+                label="Download PDF" 
+                variant="brand" 
+                class="slds-m-top_medium" 
+                onclick={generatePdf}>
+            </lightning-button>
+            <div class="pdf-container" lwc:dom="manual"></div>
+        </div>
+    </lightning-card>
+</template>
