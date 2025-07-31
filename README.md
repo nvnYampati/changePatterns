@@ -1,18 +1,33 @@
-# Salesforce DX Project: Next Steps
+📄 1. PDF Generation
+                    Feature	Original	                            Final
+Library Used	    jsPDF (loaded from static resource)	        ✅ Same
+PDF Content	Plain   doc.text(this.textValue)	                ✅ Auto-sized textbox with color, padding, wrapped text
+Measurement Units	Defaults used	                            ✅ Explicit pt units (72pt = 1 inch)
+Fixed Box Option	❌ Not present	                            ✅ generateTextBoxPdf() for 3x2" box
+Dynamic Box Option	❌ Not present	                            ✅ generateAutoSizedTextBoxPdf() with accurate sizing based on text
 
-Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.
+✏️ 2. User Inputs & Controls
+                    Feature	Original	        Final
+Text Input	        ✅ Yes              ✅ Yes
+Padding Controls	❌ No	            ✅ Horizontal and Vertical padding inputs (in pt)
+Color Pickers	    ❌ No	            ✅ Text color and background color input (hex)
+Input Sync to PDF	❌ Only text	       ✅ Text, padding, and color all sync to live preview and PDF
 
-## How Do You Plan to Deploy Your Changes?
+🧩 3. Data Structure & State
+                    Feature	Original	            Final
+Text State	    @track textValue	             ✅ Same
+Box Metadata	❌ None	                    ✅ elements[] array of objects (starting with 1 textbox)
+Semantic IDs	❌ Not used	                ✅ IDs like textbox-1
+Multi-box Ready	❌ Single text input only	✅ Structured for future multi-element support
 
-Do you want to deploy a set of changes, or create a self-contained application? Choose a [development model](https://developer.salesforce.com/tools/vscode/en/user-guide/development-models).
+🎨 4. Preview Rendering
+Feature	                    Original	                                Final
+Preview	                ❌ None	                            ✅ Live preview before PDF download
+Text Styling	        ❌ Not applicable	                ✅ Dynamic styling (color, padding) per textbox element
+LWC Compliant Styling	❌ Attempted invalid inline style	✅ Precomputed box.style per element (no inline expressions)
 
-## Configure Your Salesforce DX Project
-
-The `sfdx-project.json` file contains useful configuration information for your project. See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm) in the _Salesforce DX Developer Guide_ for details about this file.
-
-## Read All About It
-
-- [Salesforce Extensions Documentation](https://developer.salesforce.com/tools/vscode/)
-- [Salesforce CLI Setup Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
-- [Salesforce DX Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_intro.htm)
-- [Salesforce CLI Command Reference](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference.htm)
+🧠 5. Utilities
+                        Feature	Original	                   Final
+hexToRgb()	            ❌ Not present	✅ Used to convert color pickers to RGB for jsPDF
+Style Updater	        ❌ Not needed	✅ updateElementStyle(el) recomputes live preview style string
+Generic Property Setter	❌ No	        ✅ updateElementProperty(id, prop, value) keeps code DRY
