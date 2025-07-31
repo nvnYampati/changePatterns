@@ -75,32 +75,38 @@ export default class DemoPdfGenStudio extends LightningElement {
             return;
         }
 
-        const doc = new this.jsPDF();
+        // jsPDF uses 'pt' by default (72pt = 1 inch)
+        const doc = new this.jsPDF({
+            unit: 'pt',
+            format: 'a4',
+            orientation: 'portrait'
+        });
 
-        // Box dimensions in points pt
-        const x = 10;
-        const y = 10;
-        const width = 120;
-        const height = 60;
+        // Position and dimensions (in pt)
+        const x = 40;              // Left offset from edge
+        const y = 60;              // Top offset from edge
+        const width = 216;         // 3 inches
+        const height = 144;        // 2 inches
 
-        // Draw grey rectangle
-        doc.setFillColor(200, 200, 200); // light grey
-        doc.rect(x, y, width, height, 'F'); // 'F' for fill
+        // Draw a grey filled rectangle with optional border
+        doc.setFillColor(220, 220, 220); // light grey fill
+        doc.setDrawColor(80);            // border color
+        doc.rect(x, y, width, height, 'FD'); // Fill and Draw border
 
-        // Set text color and size
-        doc.setTextColor(0, 0, 0);
+        // Prepare and insert text inside the box
+        const padding = 10;
+        const textX = x + padding;
+        const textY = y + padding + 10; // slight vertical offset for top padding
+        const maxTextWidth = width - 2 * padding;
+
         doc.setFontSize(12);
+        doc.setTextColor(0); // black text
 
-        // Add multi-line text inside the box (auto-wrap manually)
-        const margin = 5;
-        const textX = x + margin;
-        const textY = y + margin + 10;
+        const wrappedText = doc.splitTextToSize(this.textValue, maxTextWidth);
+        doc.text(wrappedText, textX, textY);
 
-        const splitText = doc.splitTextToSize(this.textValue, width - 2 * margin);
-        doc.text(splitText, textX, textY);
-
-        // Output PDF
-        doc.save('Textbox_PDF.pdf');
+        // Download the generated PDF
+        doc.save('Textbox_3x2in.pdf');
     }
 
 }
