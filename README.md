@@ -1,33 +1,83 @@
-📄 1. PDF Generation
-                    Feature	Original	                            Final
-Library Used	    jsPDF (loaded from static resource)	        ✅ Same
-PDF Content	Plain   doc.text(this.textValue)	                ✅ Auto-sized textbox with color, padding, wrapped text
-Measurement Units	Defaults used	                            ✅ Explicit pt units (72pt = 1 inch)
-Fixed Box Option	❌ Not present	                            ✅ generateTextBoxPdf() for 3x2" box
-Dynamic Box Option	❌ Not present	                            ✅ generateAutoSizedTextBoxPdf() with accurate sizing based on text
+📦 General Architecture
 
-✏️ 2. User Inputs & Controls
-                    Feature	Original	        Final
-Text Input	        ✅ Yes              ✅ Yes
-Padding Controls	❌ No	            ✅ Horizontal and Vertical padding inputs (in pt)
-Color Pickers	    ❌ No	            ✅ Text color and background color input (hex)
-Input Sync to PDF	❌ Only text	       ✅ Text, padding, and color all sync to live preview and PDF
+    🔄 Refactored PDF logic into named functions:
 
-🧩 3. Data Structure & State
-                    Feature	Original	            Final
-Text State	    @track textValue	             ✅ Same
-Box Metadata	❌ None	                    ✅ elements[] array of objects (starting with 1 textbox)
-Semantic IDs	❌ Not used	                ✅ IDs like textbox-1
-Multi-box Ready	❌ Single text input only	✅ Structured for future multi-element support
+        generateBasicPdf()
 
-🎨 4. Preview Rendering
-Feature	                    Original	                                Final
-Preview	                ❌ None	                            ✅ Live preview before PDF download
-Text Styling	        ❌ Not applicable	                ✅ Dynamic styling (color, padding) per textbox element
-LWC Compliant Styling	❌ Attempted invalid inline style	✅ Precomputed box.style per element (no inline expressions)
+        generateTextBoxPdf()
 
-🧠 5. Utilities
-                        Feature	Original	                   Final
-hexToRgb()	            ❌ Not present	✅ Used to convert color pickers to RGB for jsPDF
-Style Updater	        ❌ Not needed	✅ updateElementStyle(el) recomputes live preview style string
-Generic Property Setter	❌ No	        ✅ updateElementProperty(id, prop, value) keeps code DRY
+        generateAutoSizedTextBoxPdf()
+
+    🧱 Introduced structured @track elements array
+
+        Now holds individual box objects (future-ready for multiple elements)
+
+🎨 PDF Output
+
+    ✅ Added fixed-size 3"x2" gray textbox generation (generateTextBoxPdf())
+
+    ✅ Added auto-sizing textbox PDF with text wrapping + padding (generateAutoSizedTextBoxPdf())
+
+    🎯 Accurate sizing using pt units (72pt = 1in)
+
+    🌈 Dynamic text and background color supported via hex-to-RGB conversion
+
+✍️ Input Enhancements
+
+    ➕ Added lightning-input fields for:
+
+        Horizontal padding (pt)
+
+        Vertical padding (pt)
+
+        Background color (hex)
+
+        Text color (hex)
+
+    🔁 All input values sync both:
+
+        To the internal elements[] state
+
+        To the live preview
+
+🔍 Preview System
+
+    🧪 Added live preview window in LWC
+
+    🪟 Rendered each textbox using:
+
+        Precomputed .style string per box
+
+        Clean conditional rendering (for:each={textboxElements})
+
+    🧼 Fixed invalid inline style use (style="...") by computing style in JS
+
+🧠 State Management
+
+    🧩 Each element now has:
+
+        Semantic id (e.g., textbox-1)
+
+        type, text, boxColor, textColor, paddingX, paddingY, style
+
+    📌 Introduced:
+
+        updateElementProperty(id, prop, value) — general-purpose setter
+
+        updateElementStyle(el) — generates computed inline style string
+
+    🧪 currentElementId tracks active box
+
+🛠 Utility Additions
+
+    🔧 hexToRgb() utility to convert hex color to RGB for jsPDF fill/text colors
+
+    ✅ jsPDF loaded via renderedCallback() using loadScript
+
+🧹 Cleanup & Conventions
+
+    🧼 Removed invalid syntax ({box.type === 'textbox'})
+
+    🧼 Moved preview logic to filtered getter textboxElements
+
+    ✅ Now LWC-safe and compliant
