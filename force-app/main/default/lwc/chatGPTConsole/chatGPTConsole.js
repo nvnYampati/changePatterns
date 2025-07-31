@@ -27,7 +27,7 @@ export default class ChatGPTConsole extends LightningElement {
     }
     handleChatClick(){
         this.counter++;
-        let replyObj = { id : this.counter, 
+        let replyObj = { id : 'to'+this.counter, 
                             response : this.question,
                             liAtt : 'slds-chat-listitem slds-chat-listitem_outbound',
                             showAvtar : false,
@@ -38,7 +38,7 @@ export default class ChatGPTConsole extends LightningElement {
         console.log('Object is '+this._responses);
         askGPT( { question : this.question} ).then(
             (result) => {
-                let obj = { id : this.counter, 
+                let obj = { id : 'from'+this.counter, 
                     response : result,
                     liAtt : 'slds-chat-listitem slds-chat-listitem_inbound',
                     showAvtar : true,

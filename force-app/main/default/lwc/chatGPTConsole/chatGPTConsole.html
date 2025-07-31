@@ -6,7 +6,7 @@ written by Naveen Yampati naveenyampati@gmail.com -->
        <div lwc:if={showChat}>
            <section role="log" class="slds-chat">
                
-                   <ul class="slds-chat-list">
+                   <ul class="slds-chat-list" style="overflow-y: scroll; min-height: 10rem;">
                        <template for:each={responses} for:item="response">
                             <li class={response.liAtt} key={response.id}>
                             <div class="slds-chat-message">
