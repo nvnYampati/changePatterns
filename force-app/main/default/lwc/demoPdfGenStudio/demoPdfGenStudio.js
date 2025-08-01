@@ -19,9 +19,20 @@ export default class DemoPdfGenStudio extends LightningElement {
             textColor: '#000000',
             paddingX: 10,
             paddingY: 10,
+            showBorder: true,
+            borderWidth: 1,
+            borderColor: '#555555',
+            width: 0, // ← NEW
+            height: 0, // ← NEW
             style: ''
         }
     ];
+
+    @track showBorder = true;
+    @track borderWidth = 1;
+    @track borderColor = '#555555';
+    dummyDocForPreview;
+    PREVIEW_SCALE = 0.5;
 
     currentElementId = 'textbox-1';
 
@@ -49,6 +60,10 @@ export default class DemoPdfGenStudio extends LightningElement {
                 console.log('jsPDF loaded successfully.');
             }
             this.jsPDF = jsPDF;
+
+            //instantiate the dummy preview doc
+            this.dummyDocForPreview = new jsPDF({ unit: 'pt' });
+            this.dummyDocForPreview.setFontSize(12);
             }).catch((error)=>{
             console.error('jsPDF load failed '+error);
         });
@@ -100,6 +115,21 @@ export default class DemoPdfGenStudio extends LightningElement {
         };
     }
     
+    handleBorderToggle(event) {
+        this.showBorder = event.detail.checked;
+        this.updateElementProperty(this.currentElementId, 'showBorder', this.showBorder);
+    }
+
+    handleBorderWidthChange(event) {
+        this.borderWidth = parseInt(event.detail.value, 10) || 0;
+        this.updateElementProperty(this.currentElementId, 'borderWidth', this.borderWidth);
+    }
+
+    handleBorderColorChange(event) {
+        this.borderColor = event.detail.value || '#555555';
+        this.updateElementProperty(this.currentElementId, 'borderColor', this.borderColor);
+    }
+
     generatePdf() {
         //this.generateTextBoxPdf();
         this.generateAutoSizedTextBoxPdf();
@@ -167,7 +197,10 @@ export default class DemoPdfGenStudio extends LightningElement {
         doc.setFillColor(bg.r, bg.g, bg.b);
         doc.setDrawColor(80); // Static border color
 
-        doc.rect(x, y, boxWidth, boxHeight, 'FD');
+        const borderRgb = this.hexToRgb(this.borderColor);
+        doc.setDrawColor(borderRgb.r, borderRgb.g, borderRgb.b);
+        doc.setLineWidth(this.showBorder ? this.borderWidth : 0);
+        doc.rect(x, y, boxWidth, boxHeight, this.showBorder ? 'FD' : 'F');
 
         // Convert hex to RGB for text color
         const fg = this.hexToRgb(this.textColor);
@@ -222,7 +255,7 @@ export default class DemoPdfGenStudio extends LightningElement {
 
     //helpers = utils
     updateElementProperty(id, prop, value) {
-        const el = this.elements.find(e => e.id === id);
+        let el = this.elements.find(e => e.id === id);
         if (el) {
             el[prop] = value;
             this.updateElementStyle(el);
@@ -230,18 +263,75 @@ export default class DemoPdfGenStudio extends LightningElement {
     }
 
     updateElementStyle(el) {
+        const doc = this.dummyDocForPreview;
+        if (!doc) return;
+
+        const scale = this.PREVIEW_SCALE;
+        const fontSize = 12;
+        const FONT_SCALE_CORRECTION = 0.4583;
+
+        doc.setFontSize(fontSize);
+
+        const maxTextWidth = 300 - 2 * (el.paddingX || 0);
+        const wrappedLines = doc.splitTextToSize(el.text || '', maxTextWidth);
+
+        const textMetrics = doc.getTextDimensions(wrappedLines);
+        const textWidth = textMetrics.w;
+        const textHeight = textMetrics.h;
+
+        const boxWidth = textWidth + 2 * el.paddingX;
+        const boxHeight = textHeight + 2 * el.paddingY;
+
+        const scaledBoxWidth = boxWidth * scale;
+        const scaledBoxHeight = boxHeight * scale;
+        const scaledPaddingX = el.paddingX * scale;
+        const scaledPaddingY = el.paddingY * scale;
+        const scaledFontSizePx = (fontSize * FONT_SCALE_CORRECTION).toFixed(2);
+        const scaledBorderWidth = el.borderWidth * scale;
+
+        const PDF_OFFSET_X_PT = 40;
+        const PDF_OFFSET_Y_PT = 60;
+        const previewOffsetX = PDF_OFFSET_X_PT * this.PREVIEW_SCALE;
+        const previewOffsetY = PDF_OFFSET_Y_PT * this.PREVIEW_SCALE;
+
         el.style = `
             background-color: ${el.boxColor};
             color: ${el.textColor};
-            padding: ${el.paddingY}px ${el.paddingX}px;
-            border: 1px solid #555;
+            padding: ${scaledPaddingY}px ${scaledPaddingX}px;
+            ${el.showBorder ? `border: ${scaledBorderWidth}px solid ${el.borderColor};` : 'border: none;'}
             margin-bottom: 1rem;
-            max-width: 300px;
-            font-size: 12pt;
+            font-size: ${scaledFontSizePx}px;
             line-height: 1.2;
             white-space: pre-wrap;
             word-break: break-word;
+            overflow-wrap: break-word;
+            width: ${scaledBoxWidth}px;
+            height: ${scaledBoxHeight}px;
+            max-width: ${300 * scale}px;
+            box-sizing: border-box;
+            position: absolute;
+            left: ${previewOffsetX}px;
+            top: ${previewOffsetY}px;
         `;
+    }
+
+    computeBoxDimensions(el) {
+        if (!this.dummyDocForPreview) return;
+
+        const fontSize = 12;
+        const lineHeight = fontSize * 1.2;
+        const maxLineWidth = 300;
+
+        const doc = this.dummyDocForPreview;
+        doc.setFontSize(fontSize); // ← Safe to do this here every time
+
+        const wrappedText = doc.splitTextToSize(el.text || '', maxLineWidth);
+        const longestLine = wrappedText.reduce((a, b) => a.length > b.length ? a : b, '');
+        const textWidth = doc.getTextWidth(longestLine);
+        const textHeight = wrappedText.length * lineHeight;
+
+        el.width = textWidth + 2 * el.paddingX;
+        el.height = textHeight;
     }
 
 }

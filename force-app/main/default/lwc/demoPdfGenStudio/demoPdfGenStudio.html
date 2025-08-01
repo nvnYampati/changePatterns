@@ -1,26 +1,22 @@
 <template>
-    <button onclick={handlePOC}> POC button </button>
-    <!-- lwc:render-mode="light" -->
     <lightning-card title="Text to PDF">
-        
-        <!-- preview window -->
-        <div>
-            <template if:true={textboxElements}>
-                <div class="preview-container">
+
+        <div class="main-layout">
+            <!-- LEFT: PDF preview -->
+            <div class="canvas-container">
+                <div class="a4-preview">
                     <template for:each={textboxElements} for:item="box">
                         <div key={box.id}
-                            class="preview-box"
-                            style={box.style}>
+                             class="pdf-box"
+                             style={box.style}>
                             {box.text}
                         </div>
                     </template>
                 </div>
-            </template>
-        </div>
+            </div>
 
-        <!-- editor -->
-        <div class="slds-m-around_medium">
-            <div>
+            <!-- RIGHT: Editor -->
+            <div class="editor-container slds-m-around_medium">
                 <lightning-textarea 
                     label="Enter Text" 
                     value={textValue} 
@@ -33,7 +29,7 @@
                     class="slds-m-top_medium" 
                     onclick={generatePdf}>
                 </lightning-button>
-                
+
                 <lightning-input
                     label="Horizontal Padding (pt)"
                     type="number"
@@ -61,7 +57,29 @@
                     value={textColor}
                     onchange={handleTextColorChange}>
                 </lightning-input>
+
+                <lightning-input
+                    type="checkbox"
+                    label="Show Border"
+                    checked={showBorder}
+                    onchange={handleBorderToggle}>
+                </lightning-input>
+
+                <lightning-input
+                    type="number"
+                    label="Border Width (pt)"
+                    value={borderWidth}
+                    onchange={handleBorderWidthChange}>
+                </lightning-input>
+
+                <lightning-input
+                    type="color"
+                    label="Border Color"
+                    value={borderColor}
+                    onchange={handleBorderColorChange}>
+                </lightning-input>
             </div>
         </div>
+
     </lightning-card>
 </template>
