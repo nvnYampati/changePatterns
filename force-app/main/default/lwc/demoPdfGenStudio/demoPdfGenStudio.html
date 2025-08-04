@@ -1,6 +1,5 @@
 <template>
     <lightning-card title="Text to PDF">
-
         <div class="main-layout">
             <!-- LEFT: PDF preview -->
             <div class="canvas-container">
@@ -15,71 +14,54 @@
                 </div>
             </div>
 
-            <!-- RIGHT: Editor -->
-            <div class="editor-container slds-m-around_medium">
-                <lightning-textarea 
-                    label="Enter Text" 
-                    value={textValue} 
-                    onchange={handleTextChange}>
-                </lightning-textarea>
+            <!-- RIGHT: Editor (custom inputs + 2-column layout) -->
+            <div class="editor-container">
+                <textarea class="custom-textarea" 
+                          placeholder="Enter text..." 
+                          value={textValue}
+                          oninput={handleTextChange}></textarea>
 
-                <lightning-button 
-                    label="Download PDF" 
-                    variant="brand" 
-                    class="slds-m-top_medium" 
-                    onclick={generatePdf}>
-                </lightning-button>
+                <button class="custom-button" onclick={generatePdf}>
+                    Download PDF
+                </button>
 
-                <lightning-input
-                    label="Horizontal Padding (pt)"
-                    type="number"
-                    value={paddingHorizontal}
-                    onchange={handleHorizontalPaddingChange}>
-                </lightning-input>
+                <div class="field-grid">
+                    <div class="field-pair">
+                        <label>Horizontal Padding (pt)</label>
+                        <input type="number" value={paddingHorizontal} onchange={handleHorizontalPaddingChange} />
+                    </div>
 
-                <lightning-input
-                    label="Vertical Padding (pt)"
-                    type="number"
-                    value={paddingVertical}
-                    onchange={handleVerticalPaddingChange}>
-                </lightning-input>
+                    <div class="field-pair">
+                        <label>Vertical Padding (pt)</label>
+                        <input type="number" value={paddingVertical} onchange={handleVerticalPaddingChange} />
+                    </div>
 
-                <lightning-input
-                    type="color"
-                    label="Textbox Background Color"
-                    value={boxColor}
-                    onchange={handleBoxColorChange}>
-                </lightning-input>
+                    <div class="field-pair">
+                        <label>Textbox Background Color</label>
+                        <input type="color" value={boxColor} onchange={handleBoxColorChange} />
+                    </div>
 
-                <lightning-input
-                    type="color"
-                    label="Text Color"
-                    value={textColor}
-                    onchange={handleTextColorChange}>
-                </lightning-input>
+                    <div class="field-pair">
+                        <label>Text Color</label>
+                        <input type="color" value={textColor} onchange={handleTextColorChange} />
+                    </div>
 
-                <lightning-input
-                    type="checkbox"
-                    label="Show Border"
-                    checked={showBorder}
-                    onchange={handleBorderToggle}>
-                </lightning-input>
+                    <div class="field-pair" style="display: flex;flex-direction: row;align-items: center;justify-content: space-between;">
+                        <label>Show Border</label>
+                        <input type="checkbox" checked={showBorder} onchange={handleBorderToggle} />
+                    </div>
 
-                <lightning-input
-                    type="number"
-                    label="Border Width (pt)"
-                    value={borderWidth}
-                    onchange={handleBorderWidthChange}>
-                </lightning-input>
+                    <div class="field-pair">
+                        <label>Border Width (pt)</label>
+                        <input type="number" value={borderWidth} onchange={handleBorderWidthChange} />
+                    </div>
 
-                <lightning-input
-                    type="color"
-                    label="Border Color"
-                    value={borderColor}
-                    onchange={handleBorderColorChange}>
-                </lightning-input>
+                    <div class="field-pair">
+                        <label>Border Color</label>
+                        <input type="color" value={borderColor} onchange={handleBorderColorChange} />
+                    </div>
+                </div>
             </div>
         </div>
-
     </lightning-card>
 </template>
