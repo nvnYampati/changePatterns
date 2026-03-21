@@ -1,0 +1,218 @@
+<template>
+    <lightning-card title="Barcode Generator" icon-name="utility:barcode">
+        <div class="slds-p-around_medium">
+            <!-- Input field -->
+                <lightning-input 
+                    label="Enter Value" 
+                    value={inputValue} 
+                    onchange={handleInputChange}>
+                </lightning-input>
+
+            <!-- Barcode container -->
+            <div class="slds-m-top_medium slds-align_absolute-center">
+                <svg lwc:dom="manual" class="barcode"></svg>
+            </div>
+        </div>
+
+        <div class="container">
+            <input type="text" class="custom-input" placeholder="Enter text for QR code" oninput={handleQRInputChange} />
+            <button class="custom-button" onclick={generateQrCode}>Generate QR</button>
+
+            <!-- QR code container -->
+            <div class="qr-box" lwc:dom="manual"></div>
+        </div>
+    </lightning-card>
+
+    <br/>
+    
+    
+    <div class="card" onclick={resetState}>
+        <div class="card-header">SOQL Query Builder</div>
+        <div class="card-body">
+            <div>
+                <!-- Step 1: SObject Search -->
+                <label class="form-label">Search SObject</label>
+                <div onclick={handleSearchObjectFocus}>
+                    <input 
+                        type="text" 
+                        class="form-input"
+                        value={searchKey}
+                        oninput={handleSearchChange} onfocus={handleSearchObjectFocus}
+                        onblur={handleSearchObjectBlur}
+                    />
+                </div>
+                <!-- Scrollable list of SObjects -->
+                <template if:true={showSObjectList}>
+                    <div class="sobject-list">
+                        <template for:each={filteredSObjects} for:item="obj">
+                            <div 
+                                key={obj.value}
+                                class="sobject-item"
+                                onclick={handleSObjectClick}
+                                data-value={obj.value}>
+                                {obj.label}
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </div>
+            <!-- Step 2: Field Selection -->
+            <template if:true={selectedSObject}>
+                <label class="form-label">Select Fields</label>
+                <!-- <select class="form-select" onchange={handleFieldSelect}>
+                    <option value="">-- Choose Field --</option>
+                    <template for:each={fieldOptions} for:item="f">
+                        <option key={f.value} value={f.value} class={f.className}>{f.label}</option>
+                    </template>
+                </select> -->
+                <div>
+                    <ul class="form-select">
+                        <li value="" onclick={openFieldOptions}>
+                            <input
+                                type="text" 
+                                class="form-input"
+                                value={fieldSearchKey}
+                                oninput={handleFieldSearchChange} onfocus={handleFieldSearchObjectFocus}
+                                onblur={handleFieldSearchObjectBlur}
+                            ></input>
+                        </li>
+                    </ul>
+                    <template if:true={showFieldOptions}>
+                        <ul class="form-select scrollable-list">
+                            <template for:each={filteredFieldOptions} for:item="f">
+                                <li key={f.value} data-value={f.value} class={f.className} onclick={handleFieldSelect}>{f.label}</li>
+                            </template>
+                        </ul>
+                    </template>
+                </div>
+            </template>
+
+            <!-- Badges for Selected Fields -->
+            <template if:true={selectedFields.length}>
+                <div class="badge-container">
+                    <template for:each={selectedFields} for:item="f">
+                        <span key={f} class="badge">
+                            {f}    <span class="pill-close" onclick={removeField} style="color:#ffffff;cursor:pointer;" data-value={f}>&times;</span>
+                        </span> 
+                    </template>
+                </div>
+            </template>
+
+            <!-- Filter Section -->
+            <div class="filters-container">
+                <template if:true={soqlQuery.length}>
+                    <div>
+                        <button type="button" onclick={addFilter} disabled = {disableFIlter}>+ Add Filter</button>
+                        
+                        <!-- <div> -->
+                        <select onchange={handleConditionLogicChange} style="margin-left: 5rem;">
+                                <option  value="ALL">ALL</option>
+                                <option  value="ANY">ANY</option>
+                                <option  value="CUSTOM">CUSTOM</option>
+                        </select>
+                        <input type="text" value={customConditionInput} onchange={handleCustomLogicChange} disabled={isCustomLogic} style="margin-left: 1rem;"/>
+                        <!-- </div> -->
+                    </div>
+                    
+                    <template if:true={filters.length} for:each={filters} for:item="filter" for:index="index">
+                        <div key={filter.id} class="filter-row">
+                            <strong>{filter.serial}</strong>
+                            <!-- Field -->
+                            <select data-id={filter.id} onchange={handleFilterFieldSelect}>
+                                <option value="">-- Select Field --</option>
+                                <template for:each={fieldOptions} for:item="fld">
+                                    <option key={fld.value} value={fld.value}>{fld.label}</option>
+                                </template>
+                            </select>
+
+                            <!-- Operator -->
+                            <select data-id={filter.id} onchange={handleFilterOperatorChange}>
+                                <option value="">-- Operator --</option>
+
+                                <template if:true={filter.isText}>
+                                    <option value="=">Equals To</option>
+                                    <option value="!=">Not Equals To</option>
+                                    <option value="LIKE">Contains</option>
+                                </template>
+
+                                <template if:true={filter.isNumeric}>
+                                    <option value="=">Equals To</option>
+                                    <option value="!=">Not Equals To</option>
+                                    <option value=">">Greater Than</option>
+                                    <option value="<">Less Than</option>
+                                    <option value=">=">Greater or Equals To</option>
+                                    <option value="<=">Lesser or Equals To</option>
+                                </template>
+
+                                <template if:true={filter.isPicklist}>
+                                    <option value="=">Equals To</option>
+                                    <option value="!=">Not Equals To</option>
+                                </template>
+
+                                <template if:true={filter.isCheckBox}>
+                                    <option value="=">Equals To</option>
+                                    <option value="!=">Not Equals To</option>
+                                </template>
+
+                                <template if:true={filter.isMultiPicklist}>
+                                    <option value="IN">Includes</option>
+                                    <option value="NOT IN">Excludes</option>
+                                </template>
+                            </select>
+
+                            <!-- Value -->
+                            <template if:true={filter.disableOperator}>
+                                <input disabled />
+                            </template>
+                            <template if:false={filter.disableOperator}>
+                                <template if:true={filter.isText}>
+                                    <input data-id={filter.id} type="text" onchange={handleFilterValueChange} />
+                                </template>
+
+                                <template if:true={filter.isNumeric}>
+                                    <input data-id={filter.id} type="number" onchange={handleFilterValueChange} />
+                                </template>
+
+                                <template if:true={filter.isPicklist}>
+                                    <select data-id={filter.id} onchange={handleFilterValueChange}>
+                                        <option value="">-- Select Value --</option>
+                                        <template for:each={filter.picklistOptions} for:item="opt">
+                                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                        </template>
+                                    </select>
+                                </template>
+
+                                <template if:true={filter.isMultiPicklist}>
+                                    <select multiple data-id={filter.id} onchange={handleMultiPicklistChange}>
+                                        <template for:each={filter.picklistOptions} for:item="opt">
+                                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                        </template>
+                                    </select>
+                                </template>
+
+                                
+                                <template if:true={filter.isCheckBox}>
+                                    <select data-id={filter.id} onchange={handleFilterValueChange}>
+                                        <option value="">-- Select Value --</option>
+                                        <option value=true>true</option>
+                                        <option value=false>false</option>
+                                    </select>
+                                </template>
+                            </template>
+                        </div>
+                    </template>
+                </template>
+                
+            </div>
+
+            <!-- SOQL Query Preview -->
+            <template if:true={soqlQuery}>
+                <div class="query-box">
+                    <strong>SOQL Query:</strong>
+                    <pre>{soqlQuery}</pre>
+                </div>
+                <button type="button" onclick={handleGetRecords} >Get Records</button>
+            </template>
+        </div>
+    </div>
+</template>

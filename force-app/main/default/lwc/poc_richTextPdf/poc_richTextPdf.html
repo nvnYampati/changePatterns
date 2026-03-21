@@ -1,0 +1,95 @@
+<template>
+    <lightning-card title="Handlebars + jsPDF Renderer">
+        <div class="slds-p-around_medium">
+            <button onclick={downloadPdf}>
+                Generate PDF
+            </button>
+
+            <button onclick={downloadPdfV2}>
+                Generate PDF V2
+            </button>
+
+            <button onclick={handleGenerate}>
+                Generate handle
+            </button>
+
+            <!-- The place where the HTML template is rendered -->
+            <div class="canvas-host" style="width:600px;"></div>
+        </div>
+    </lightning-card>
+    <lightning-card title="Handlebars + jsPDF Demo">
+        <div class="slds-var-p-around_medium">
+            <lightning-textarea
+                label="Handlebars Template"
+                value={templateText}
+                onchange={handleTemplateChange}
+                rows="5">
+            </lightning-textarea>
+
+            <lightning-textarea
+                label="Sample JSON Data"
+                value={jsonText}
+                onchange={handleJsonChange}
+                rows="5">
+            </lightning-textarea>
+
+            <div class="slds-var-m-top_medium">
+                <lightning-button label="Preview Render" onclick={renderPreview}></lightning-button>
+                <lightning-button label="Download PDF" class="slds-var-m-left_small" onclick={downloadPdf}></lightning-button>
+            </div>
+
+            <div class="slds-var-m-top_medium slds-box">
+                <div lwc:dom="manual" class="render-preview"></div>
+            </div>
+        </div>
+    </lightning-card>
+
+    <lightning-card title="Rich-text POC">
+        <div class="toolbar" onmousedown={handleToolbarMouseDown}>
+            <!-- Text color -->
+            <input type="color" data-cmd="foreColor" title="Text color" oninput={handleColorChange} />
+
+            <!-- Background color / highlight -->
+            <input type="color" data-cmd="hiliteColor" title="Highlight color" oninput={handleColorChange} />
+
+            <!-- Bold / Italic / Underline -->
+            <button type="button" data-cmd="bold" onclick={handleCmd} title="Bold"><strong>B</strong></button>
+            <button type="button" data-cmd="italic" onclick={handleCmd} title="Italic"><em>I</em></button>
+            <button type="button" data-cmd="underline" onclick={handleCmd} title="Underline"><u>U</u></button>
+
+            <!-- Font size (px) -->
+            <input type="number" min="6" max="200" step="1" value="16"
+                class="font-size-input"
+                title="Font size (px)"
+                oninput={handleFontSizeChange} />
+
+            <!-- Alignment -->
+            <button type="button" data-cmd="justifyLeft" onclick={handleCmd} title="Align left">Left</button>
+            <button type="button" data-cmd="justifyCenter" onclick={handleCmd} title="Center">Center</button>
+            <button type="button" data-cmd="justifyRight" onclick={handleCmd} title="Right">Right</button>
+            <button type="button" data-cmd="justifyFull" onclick={handleCmd} title="Justify">Justify</button>
+
+            <!-- Lists -->
+            <button type="button" data-cmd="insertUnorderedList" onclick={handleCmd} title="Unordered list">• List</button>
+            <button type="button" data-cmd="insertOrderedList" onclick={handleCmd} title="Ordered list">1. List</button>
+            
+        </div>
+
+        <br/> <button class="pdf-btn" onclick={generateRichPdf}>Download PDF</button>
+
+        <div class="editor-container">
+            <div class="editor"
+                contenteditable="true"
+                data-id="editor"
+                oninput={handleInput}
+                onkeyup={saveSelection}
+                onmouseup={saveSelection}
+            >
+                Start typing your rich text here...
+            </div>
+        </div>
+
+        <h3>Preview</h3>
+        <div class="preview" lwc:dom="manual"></div>
+    </lightning-card>
+</template>
