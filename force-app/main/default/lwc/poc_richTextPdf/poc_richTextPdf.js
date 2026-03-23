@@ -852,7 +852,6 @@ export default class Poc_richTextPdf extends LightningElement {
 
         let y = 40;
 
-        // 🔥 GLOBAL LINE BUFFER (KEY FIX)
         let line = [];
         let lineWidth = 0;
 
@@ -883,10 +882,11 @@ export default class Poc_richTextPdf extends LightningElement {
         };
 
         //---------------------------------------------------
-        const flushLine = () => {
-            if (!line.length) return;
+        const flushLine = (forceEmpty = false) => {
+            // 🔥 KEY FIX: allow empty line rendering
+            if (!line.length && !forceEmpty) return;
 
-            const style = line[0].style;
+            const style = line[0]?.style || { fontSize: 14 };
             const align = style.align;
 
             const totalWidth = line.reduce((sum, seg) => {
@@ -899,9 +899,7 @@ export default class Poc_richTextPdf extends LightningElement {
             line.forEach(seg => {
                 applyStyle(seg.style);
 
-                doc.text(seg.text, cursorX, y, {
-                    baseline: 'alphabetic'
-                });
+                doc.text(seg.text, cursorX, y);
 
                 if (seg.style.underline) {
                     const underlineY = y + (seg.style.fontSize || 14) * 0.2;
@@ -912,9 +910,9 @@ export default class Poc_richTextPdf extends LightningElement {
                 cursorX += doc.getTextWidth(seg.text);
             });
 
+            // 🔥 EVEN EMPTY LINE MOVES Y
             y += (style.fontSize || 14) * 1.4;
 
-            // reset buffer
             line = [];
             lineWidth = 0;
         };
@@ -923,12 +921,10 @@ export default class Poc_richTextPdf extends LightningElement {
         const pushWord = (word, style) => {
             applyStyle(style);
 
-            // 🔥 CRITICAL FIX: normalize space rendering
             let renderText = word;
 
             if (/^\s+$/.test(word)) {
-                // Replace spaces with non-breaking spaces for width calculation
-                renderText = word.replace(/ /g, '\u00A0');
+                renderText = word.replace(/ /g, '\u00A0'); // preserve spaces
             }
 
             const width = doc.getTextWidth(renderText);
@@ -939,7 +935,6 @@ export default class Poc_richTextPdf extends LightningElement {
 
             line.push({
                 text: renderText,
-                raw: word, // keep original if needed later
                 style
             });
 
@@ -949,16 +944,20 @@ export default class Poc_richTextPdf extends LightningElement {
         //---------------------------------------------------
         const processNode = (node, style = {}) => {
 
+            // ✅ TEXT NODE
             if (node.nodeType === Node.TEXT_NODE) {
-                const text = node.textContent.replace(/\s+/g, ' ');
-                if (!text.trim()) return;
+                const raw = node.textContent;
 
-                const words = text.split(/(\s+)/); // preserve spaces
+                // 🔥 CRITICAL FIX: preserve empty lines
+                if (!raw.trim()) {
+                    flushLine(true); // <-- THIS FIXES YOUR BUG
+                    return;
+                }
 
-                words.forEach(word => {
-                    pushWord(word, style);
-                });
+                const text = raw.replace(/\s+/g, ' ');
+                const words = text.split(/(\s+)/);
 
+                words.forEach(word => pushWord(word, style));
                 return;
             }
 
@@ -982,14 +981,23 @@ export default class Poc_richTextPdf extends LightningElement {
             if (tag === 'U') newStyle.underline = true;
 
             //------------------------------------
-            // BLOCK TAGS
+            // BLOCK START
             //------------------------------------
             if (tag === 'P' || tag === 'DIV') {
-                flushLine(); // 🔥 important
+                flushLine();
             }
 
+            //------------------------------------
+            // EMPTY BLOCK FIX
+            //------------------------------------
+            if ((tag === 'DIV' || tag === 'P') && node.innerHTML.trim() === '<br>') {
+                flushLine(true); // 🔥 THIS HANDLES EMPTY ENTER LINES
+                return;
+            }
+
+            //------------------------------------
             if (tag === 'BR') {
-                flushLine();
+                flushLine(true); // 🔥 BR also forces empty line
                 return;
             }
 
@@ -1007,7 +1015,7 @@ export default class Poc_richTextPdf extends LightningElement {
             }
 
             //------------------------------------
-            // CHILDREN (CONTINUOUS FLOW)
+            // CHILDREN
             //------------------------------------
             node.childNodes.forEach(child => processNode(child, newStyle));
 
@@ -1020,13 +1028,11 @@ export default class Poc_richTextPdf extends LightningElement {
         };
 
         //---------------------------------------------------
-        // START
-        //---------------------------------------------------
         try {
             const root = parsed.body.firstChild;
             if (root) processNode(root);
 
-            flushLine(); // 🔥 final flush
+            flushLine(); // final flush
 
             doc.save("rich-text.pdf");
         } catch (e) {
