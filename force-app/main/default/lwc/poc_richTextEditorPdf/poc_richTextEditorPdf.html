@@ -1,0 +1,50 @@
+<template>
+    <lightning-card title="Rich-text POC">
+        <div class="toolbar" onmousedown={handleToolbarMouseDown}>
+            <!-- Text color -->
+            <input type="color" data-cmd="foreColor" title="Text color" oninput={handleColorChange} />
+
+            <!-- Background color / highlight -->
+            <input type="color" data-cmd="hiliteColor" title="Highlight color" oninput={handleColorChange} />
+
+            <!-- Bold / Italic / Underline -->
+            <button class={boldClass} data-cmd="bold" onclick={handleCmd}><strong>B</strong></button>
+            <button class={italicClass} data-cmd="italic" onclick={handleCmd}><em>I</em></button>
+            <button class={underlineClass} data-cmd="underline" onclick={handleCmd}><u>U</u></button>
+
+            <!-- Font size (px) -->
+            <input type="number" min="6" max="200" step="1" value="16"
+                class="font-size-input"
+                title="Font size (px)"
+                oninput={handleFontSizeChange} />
+
+            <!-- Alignment -->
+            <button type="button" data-cmd="justifyLeft" onclick={handleCmd} title="Align left">Left</button>
+            <button type="button" data-cmd="justifyCenter" onclick={handleCmd} title="Center">Center</button>
+            <button type="button" data-cmd="justifyRight" onclick={handleCmd} title="Right">Right</button>
+            <button type="button" data-cmd="justifyFull" onclick={handleCmd} title="Justify">Justify</button>
+
+            <!-- Lists -->
+            <button type="button" data-cmd="insertUnorderedList" onclick={handleCmd} title="Unordered list">• List</button>
+            <button type="button" data-cmd="insertOrderedList" onclick={handleCmd} title="Ordered list">1. List</button>
+            
+        </div>
+
+        <br/> <button class="pdf-btn" onclick={generateRichPdf}>Download PDF</button>
+
+        <div class="editor-container">
+            <div class="editor"
+                contenteditable="true"
+                data-id="editor"
+                oninput={handleInput}
+                onkeyup={handleKeyUp}
+                onmouseup={handleMouseUp}
+            >
+                Start typing your text here...
+            </div>
+        </div>
+
+        <h3>Preview</h3>
+        <div class="preview" lwc:dom="manual"></div>
+    </lightning-card>
+</template>

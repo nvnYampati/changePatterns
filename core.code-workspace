@@ -1,0 +1,19 @@
+{
+  "folders": [
+    {
+      "path": "c:/Users/Naveen yampati/Documents/VS projects/changePatterns"
+    }
+  ],
+  "settings": {
+    "eslint.workingDirectories": [
+      "c:/Users/Naveen yampati/Documents/VS projects/changePatterns"
+    ],
+    "eslint.validate": [
+      "javascript",
+      "typescript"
+    ],
+    "eslint.options": {
+      "overrideConfigFile": "c:\\Users\\Naveen yampati\\Documents\\VS projects\\changePatterns\\.eslintrc.json"
+    }
+  }
+}

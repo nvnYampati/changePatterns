@@ -1,0 +1,81 @@
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+.toolbar input[type="color"] {
+    width: 34px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid #ccc;
+}
+
+.toolbar button:active {
+    transform: scale(0.97);
+}
+
+.toolbar .font-size-input {
+    width: 70px;
+    padding: 4px;
+    border: 1px solid #ccc;
+}
+
+.toolbar button,
+.toolbar select {
+    padding: 6px 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background: #fff;
+    cursor: pointer;
+}
+.active-btn {
+    background-color: #d0e6ff;
+    border-color: #3399ff;
+}
+
+.editor {
+    border: 1px solid #bfbfbf;
+    min-height: 180px;
+    padding: 10px;
+    border-radius: 4px;
+    background: white;
+    font-size: 15px;
+    overflow: auto;
+}
+
+.preview {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px dashed #999;
+    min-height: 120px;
+    background: #fafafa;
+}
+
+.editor ul,
+.preview ul {
+    list-style: disc !important;
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.editor ol,
+.preview ol {
+    list-style: decimal !important;
+    list-style-type: decimal;
+    padding-left: 20px;
+}
+
+.preview li {
+    margin-bottom: 4px;
+}
+
+.pdf-btn {
+    background-color: #006dcc;
+}
+.pdf-btn:hover {
+    background-color: #81b3df;
+}
